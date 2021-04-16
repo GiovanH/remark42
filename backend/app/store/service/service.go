@@ -433,6 +433,7 @@ type EditRequest struct {
 	Orig    string
 	Summary string
 	Delete  bool
+	ReqAdmin bool
 }
 
 // EditComment to edit text and update Edit info
@@ -442,13 +443,15 @@ func (s *DataStore) EditComment(locator store.Locator, commentID string, req Edi
 		return comment, err
 	}
 
-	// edit allowed in editDuration window only
-	if s.EditDuration > 0 && time.Now().After(comment.Timestamp.Add(s.EditDuration)) {
-		return comment, errors.Errorf("too late to edit %s", commentID)
-	}
+	if !req.ReqAdmin {
+		// edit allowed in editDuration window only
+		if s.EditDuration > 0 && time.Now().After(comment.Timestamp.Add(s.EditDuration)) {
+			return comment, errors.Errorf("too late to edit %s", commentID)
+		}
 
-	if s.HasReplies(comment) {
-		return comment, errors.Errorf("parent comment with reply can't be edited, %s", commentID)
+		if s.HasReplies(comment) {
+			return comment, errors.Errorf("parent comment with reply can't be edited, %s", commentID)
+		}
 	}
 
 	if req.Delete { // delete request

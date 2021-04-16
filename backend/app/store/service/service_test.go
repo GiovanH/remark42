@@ -711,6 +711,10 @@ func TestService_EditCommentDurationFailed(t *testing.T) {
 	_, err = b.EditComment(store.Locator{URL: "https://radio-t.com", SiteID: "radio-t"}, res[0].ID,
 		EditRequest{Orig: "yyy", Text: "xxx", Summary: "my edit"})
 	assert.Error(t, err)
+
+	_, err = b.EditComment(store.Locator{URL: "https://radio-t.com", SiteID: "radio-t"}, res[0].ID,
+		EditRequest{Orig: "yyy", Text: "xxx", Summary: "my edit", ReqAdmin: true})
+	assert.NoError(t, err)
 }
 
 func TestService_EditCommentReplyFailed(t *testing.T) {
