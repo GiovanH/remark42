@@ -537,7 +537,7 @@ class Comment extends Component<CommentProps, State> {
     const isDownvotingDisabled = downvotingDisabledReason !== null;
     const upvotingDisabledReason = this.getUpvoteDisabledReason();
     const isUpvotingDisabled = upvotingDisabledReason !== null;
-    const editable = props.repliesCount === 0 && state.editDeadline;
+    const editable = (props.repliesCount === 0 && state.editDeadline) || isAdmin;
     const scoreSignEnabled = !StaticStore.config.positive_score;
     const uploadImageHandler = this.isAnonymous() ? undefined : this.props.uploadImage;
     const commentControls = this.getCommentControls();
@@ -787,7 +787,7 @@ class Comment extends Component<CommentProps, State> {
               {!props.data.delete &&
                 !props.disabled &&
                 !!o.orig &&
-                isCurrentUser &&
+                (isCurrentUser || isAdmin) &&
                 (editable || isEditing) &&
                 props.view === 'main' && [
                   <Button
