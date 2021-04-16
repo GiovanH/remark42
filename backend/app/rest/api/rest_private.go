@@ -155,7 +155,7 @@ func (s *private) updateCommentCtrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if currComment.User.ID != user.ID {
+	if currComment.User.ID != user.ID && !user.Admin {
 		rest.SendErrorJSON(w, r, http.StatusForbidden, errors.New("rejected"),
 			"can not edit comments for other users", rest.ErrNoAccess)
 		return

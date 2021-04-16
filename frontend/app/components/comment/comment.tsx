@@ -421,7 +421,7 @@ class Comment extends Component<CommentProps, State> {
       return getVoteMessage(VoteMessagesTypes.ONLY_POST_PAGE, intl);
     if (this.props.post_info!.read_only) return getVoteMessage(VoteMessagesTypes.READONLY, intl);
     if (this.props.data.delete) return getVoteMessage(VoteMessagesTypes.DELETED, intl);
-    if (this.isCurrentUser()) return getVoteMessage(VoteMessagesTypes.OWN_COMMENT, intl);
+    if (this.isCurrentUser() && !isAdmin) return getVoteMessage(VoteMessagesTypes.OWN_COMMENT, intl);
     if (StaticStore.config.positive_score && this.props.data.score < 1)
       return getVoteMessage(VoteMessagesTypes.ONLY_POSITIVE, intl);
     if (this.isGuest()) return getVoteMessage(VoteMessagesTypes.GUEST, intl);
@@ -438,7 +438,7 @@ class Comment extends Component<CommentProps, State> {
       return getVoteMessage(VoteMessagesTypes.ONLY_POST_PAGE, intl);
     if (this.props.post_info!.read_only) return getVoteMessage(VoteMessagesTypes.READONLY, intl);
     if (this.props.data.delete) return getVoteMessage(VoteMessagesTypes.DELETED, intl);
-    if (this.isCurrentUser()) return getVoteMessage(VoteMessagesTypes.OWN_COMMENT, intl);
+    if (this.isCurrentUser() && !isAdmin) return getVoteMessage(VoteMessagesTypes.OWN_COMMENT, intl);
     if (this.isGuest()) return getVoteMessage(VoteMessagesTypes.GUEST, intl);
     if (this.isAnonymous() && !StaticStore.config.anon_vote) return getVoteMessage(VoteMessagesTypes.ANONYMOUS, intl);
     return null;
