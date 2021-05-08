@@ -47,7 +47,7 @@ func (f *CommentFormatter) FormatText(txt string) (res string) {
 		bf.BackslashLineBreak | bf.Autolink
 
 	rend := bf.NewHTMLRenderer(bf.HTMLRendererParameters{
-		Flags: bf.Smartypants | bf.SmartypantsFractions | bf.SmartypantsDashes | bf.SmartypantsAngledQuotes,
+		Flags: bf.Smartypants | bf.SmartypantsFractions | bf.SmartypantsDashes,
 	})
 
 	extRend := bfchroma.NewRenderer(bfchroma.Extend(rend), bfchroma.ChromaOptions(html.WithClasses(true)))
