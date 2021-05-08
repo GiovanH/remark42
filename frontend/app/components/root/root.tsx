@@ -2,7 +2,7 @@ import { h, Component, FunctionComponent, Fragment } from 'preact';
 import { useSelector } from 'react-redux';
 import b from 'bem-react-helper';
 import { IntlShape, useIntl, FormattedMessage, defineMessages } from 'react-intl';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 import type { Sorting } from 'common/types';
 import type { StoreState } from 'store';
@@ -30,16 +30,16 @@ import { setCommentsReadOnlyState } from 'store/post-info/actions';
 import { setTheme } from 'store/theme/actions';
 
 import { Button } from 'components/button';
-import Preloader from 'components/preloader';
-import Settings from 'components/settings';
-import AuthPanel from 'components/auth-panel';
+import { Preloader } from 'components/preloader';
+import { Settings } from 'components/settings';
+import { AuthPanel } from 'components/auth-panel';
 import { CommentForm } from 'components/comment-form';
 import { Thread } from 'components/thread';
 import { ConnectedComment as Comment } from 'components/comment/connected-comment';
 import { uploadImage, getPreview } from 'common/api';
 import { isUserAnonymous } from 'utils/isUserAnonymous';
 import { bindActions } from 'utils/actionBinder';
-import postMessage from 'utils/postMessage';
+import { postMessage } from 'utils/postMessage';
 import { useActions } from 'hooks/useAction';
 import { setCollapse } from 'store/thread/actions';
 import { logout } from 'components/auth/auth.api';
@@ -339,7 +339,7 @@ export const ConnectedRoot: FunctionComponent = () => {
   const intl = useIntl();
 
   return (
-    <div className={classnames(b('root', {}, { theme: props.theme }), props.theme)}>
+    <div className={clsx(b('root', {}, { theme: props.theme }), props.theme)}>
       <Root {...props} {...actions} intl={intl} />
       <p className="root__copyright" role="contentinfo">
         <FormattedMessage

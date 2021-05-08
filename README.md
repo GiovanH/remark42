@@ -17,7 +17,8 @@ Remark42 is a self-hosted, lightweight, and simple (yet functional) comment engi
 * Images upload with drag-and-drop
 * Extractor for recent comments, cross-post
 * RSS for all comments and each post
-* Telegram and email notifications
+* Telegram, Slack and email notifications for Admins (get notified for each new comment)
+* Email notifications for users (get notified when someone responds to your comment)
 * Export data to json with automatic backups
 * No external databases, everything embedded in a single data file
 * Fully dockerized and can be deployed in a single command
@@ -105,7 +106,7 @@ _this is the recommended way to run remark42_
 | Command line            | Environment             | Default                  | Description                                     |
 | ----------------------- | ----------------------- | ------------------------ | ----------------------------------------------- |
 | url                     | REMARK_URL              |                          | url to remark42 server, _required_              |
-| secret                  | SECRET                  |                          | secret key, _required_                          |
+| secret                  | SECRET                  |                          | shared secret key used to sign JWT, should be a random, long, hard-to-guess string, _required_ |
 | site                    | SITE                    | `remark`                 | site name(s), _multi_                           |
 | store.type              | STORE_TYPE              | `bolt`                   | type of storage, `bolt` or `rpc`                |
 | store.bolt.path         | STORE_BOLT_PATH         | `./var`                  | path to data directory                          |
@@ -155,11 +156,13 @@ _this is the recommended way to run remark42_
 | auth.email.subj         | AUTH_EMAIL_SUBJ         | `remark42 confirmation`  | email subject                                   |
 | auth.email.content-type | AUTH_EMAIL_CONTENT_TYPE | `text/html`              | email content type                              |
 | auth.email.template     | AUTH_EMAIL_TEMPLATE     | none (predefined)        | custom email message template file              |
-| notify.type             | NOTIFY_TYPE             | none                     | type of notification (telegram and/or email)    |
+| notify.type             | NOTIFY_TYPE             | none                     | type of notification (telegram, slack and/or email) |
 | notify.queue            | NOTIFY_QUEUE            | `100`                    | size of notification queue                      |
 | notify.telegram.token   | NOTIFY_TELEGRAM_TOKEN   |                          | telegram token                                  |
 | notify.telegram.chan    | NOTIFY_TELEGRAM_CHAN    |                          | telegram channel                                |
 | notify.telegram.timeout | NOTIFY_TELEGRAM_TIMEOUT | `5s`                     | telegram timeout                                |
+| notify.slack.token      | NOTIFY_SLACK_TOKEN      |                          | slack token                                     |
+| notify.slack.chan       | NOTIFY_SLACK_CHAN       | `general`                | slack channel                                   |
 | notify.email.fromAddress | NOTIFY_EMAIL_FROM      |                          | from email address                              |
 | notify.email.verification_subj | NOTIFY_EMAIL_VERIFICATION_SUBJ | `Email verification` | verification message subject          |
 | notify.email.notify_admin | NOTIFY_EMAIL_ADMIN    | `false`                  | notify admin on new comments via ADMIN_SHARED_EMAIL |
@@ -460,22 +463,15 @@ Add this snippet to the bottom of web page:
     theme: 'dark', // optional param; if it isn't defined default value ('light') will be used
     page_title: 'Moving to Remark42', // optional param; if it isn't defined `document.title` will be used
     locale: 'en', // set up locale and language, if it isn't defined default value ('en') will be used
-    show_email_subscription: false // optional param; by default it is `true` and you can see email subscription feature
-                                   // in interface when enable it from backend side
-                                   // if you set this param in `false` you will get notifications email notifications as admin
-                                   // but your users won't have interface for subscription
+    show_email_subscription: false, // optional param; by default it is `true` and you can see email subscription feature
+                                    // in interface when enable it from backend side
+                                    // if you set this param in `false` you will get notifications email notifications as admin
+                                    // but your users won't have interface for subscription
+    simple_view: false // optional param; overrides the parameter from the backend
+                       // minimized UI with basic info only
   };
 </script>
-<script>
-  (function(c) {
-    for(var i = 0; i < c.length; i++){
-      var d = document, s = d.createElement('script');
-      s.src = remark_config.host + '/web/' +c[i] +'.js';
-      s.defer = true;
-      (d.head || d.body).appendChild(s);
-    }
-  })(remark_config.components || ['embed']);
-</script>
+<script>!function(e,n){for(var o=0;o<e.length;o++){var r=n.createElement("script"),c=".js",d=n.head||n.body;"noModule"in r?(r.type="module",c=".mjs"):r.async=!0,r.defer=!0,r.src=remark_config.host+"/web/"+e[o]+c,d.appendChild(r)}}(remark_config.components||["embed"],document);</script>
 ```
 
 And then add this node in the place where you want to see Remark42 widget:
@@ -521,15 +517,6 @@ Add this snippet to the bottom of web page, or adjust already present `remark_co
     site_id: 'YOUR_SITE_ID',
     components: ['last-comments']
   };
-
-  (function(c) {
-    for(var i = 0; i < c.length; i++){
-      var d = document, s = d.createElement('script');
-      s.src = remark_config.host + '/web/' +c[i] +'.js';
-      s.defer = true;
-      (d.head || d.body).appendChild(s);
-    }
-  })(remark_config.components || ['embed']);
 </script>
 ```
 
@@ -554,15 +541,6 @@ Add this snippet to the bottom of web page, or adjust already present `remark_co
     site_id: 'YOUR_SITE_ID',
     components: ['counter']
   };
-
-  (function(c) {
-    for(var i = 0; i < c.length; i++){
-      var d = document, s = d.createElement('script');
-      s.src = remark_config.host + '/web/' +c[i] +'.js';
-      s.defer = true;
-      (d.head || d.body).appendChild(s);
-    }
-  })(remark_config.components || ['embed']);
 </script>
 ```
 
@@ -918,3 +896,8 @@ _all admin calls require auth and admin privilege_
 * Images can be proxied (`IMAGE_PROXY_HTTP2HTTPS=true`) to prevent mixed http/https.
 * All images can be proxied and saved (`IMAGE_PROXY_CACHE_EXTERNAL=true`) instead of serving from original location. Beware, images which are posted with this parameter enabled will be served from proxy even after it will be disabled.
 * Docker build uses [publicly available](https://github.com/umputun/baseimage) base images.
+
+## Related projects
+
+- [A Helm chart for Remark42 on Kubernetes](https://github.com/groundhog2k/helm-charts/tree/master/charts/remark42)
+- [django-remark42](https://github.com/andrewp-as-is/django-remark42.py)

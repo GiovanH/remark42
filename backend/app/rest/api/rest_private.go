@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/go-pkgz/auth"
 	"github.com/go-pkgz/auth/token"
@@ -101,7 +101,7 @@ func (s *private) createCommentCtrl(w http.ResponseWriter, r *http.Request) {
 
 	id, err := s.dataService.Create(comment)
 	if err == service.ErrRestrictedWordsFound {
-		rest.SendErrorJSON(w, r, http.StatusBadRequest, err, "invalid comment", rest.ErrCommentValidation)
+		rest.SendErrorJSON(w, r, http.StatusBadRequest, err, "invalid comment", rest.ErrCommentRestrictWords)
 		return
 	}
 	if err != nil {

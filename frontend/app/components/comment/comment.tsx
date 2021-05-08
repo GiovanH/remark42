@@ -5,8 +5,8 @@ import { getHandleClickProps } from 'common/accessibility';
 import { API_BASE, BASE_URL, COMMENT_NODE_CLASSNAME_PREFIX } from 'common/constants';
 
 import { StaticStore } from 'common/static-store';
-import debounce from 'utils/debounce';
-import copy from 'common/copy';
+import { debounce } from 'utils/debounce';
+import { copy } from 'common/copy';
 import { Theme, BlockTTL, Comment as CommentType, PostInfo, User, CommentMode } from 'common/types';
 import { extractErrorMessageFromResponse, FetcherError } from 'utils/errorUtils';
 import { isUserAnonymous } from 'utils/isUserAnonymous';
@@ -14,9 +14,9 @@ import { isUserAnonymous } from 'utils/isUserAnonymous';
 import { CommentFormProps } from 'components/comment-form';
 import { AvatarIcon } from 'components/avatar-icon';
 import { Button } from 'components/button';
-import Countdown from 'components/countdown';
+import { Countdown } from 'components/countdown';
 import { getPreview, uploadImage } from 'common/api';
-import postMessage from 'utils/postMessage';
+import { postMessage } from 'utils/postMessage';
 import { FormattedMessage, useIntl, IntlShape, defineMessages } from 'react-intl';
 import { getVoteMessage, VoteMessagesTypes } from './getVoteMessage';
 import { getBlockingDurations } from './getBlockingDurations';
@@ -137,7 +137,7 @@ export interface State {
   initial: boolean;
 }
 
-class Comment extends Component<CommentProps, State> {
+export class Comment extends Component<CommentProps, State> {
   votingPromise: Promise<unknown> = Promise.resolve();
   /** comment text node. Used in comment text copying */
   textNode = createRef<HTMLDivElement>();
@@ -507,7 +507,9 @@ class Comment extends Component<CommentProps, State> {
                 <FormattedMessage id="comment.blocking-period" defaultMessage="Blocking period" />
               </option>
               {blockingDurations.map((block) => (
-                <option value={block.value}>{block.label}</option>
+                <option key={block.value} value={block.value}>
+                  {block.label}
+                </option>
               ))}
             </select>
           </span>
@@ -791,6 +793,7 @@ class Comment extends Component<CommentProps, State> {
                 (editable || isEditing) &&
                 props.view === 'main' && [
                   <Button
+                    key="edit-button"
                     kind="link"
                     {...getHandleClickProps(this.toggleEditing)}
                     mix={['comment__action', 'comment__action_type_edit']}
@@ -803,6 +806,7 @@ class Comment extends Component<CommentProps, State> {
                   </Button>,
                   !isAdmin && (
                     <Button
+                      key="delete-button"
                       kind="link"
                       {...getHandleClickProps(this.deleteComment)}
                       mix={['comment__action', 'comment__action_type_delete']}
@@ -812,6 +816,7 @@ class Comment extends Component<CommentProps, State> {
                   ),
                   state.editDeadline && (
                     <Countdown
+                      key="countdown"
                       className="comment__edit-timer"
                       time={state.editDeadline}
                       onTimePassed={() =>
@@ -893,5 +898,3 @@ function FormatTime({ time }: { time: Date }) {
     />
   );
 }
-
-export default Comment;
